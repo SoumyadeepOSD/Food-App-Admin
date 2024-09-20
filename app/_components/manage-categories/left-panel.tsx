@@ -5,15 +5,7 @@ import {
     CardContent,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/card"
 import {
     AlertDialog,
     AlertDialogCancel,
@@ -24,6 +16,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Pencil1Icon, TrashIcon } from '@radix-ui/react-icons';
 import { Toaster } from '@/components/ui/toaster';
 import { toast } from '@/hooks/use-toast';
@@ -76,7 +69,7 @@ const LeftPanel = ({ categories, getChildCategories }: any) => {
     };
 
     return (
-        <Card className="h-[100%] w-[40%]">
+        <Card className="h-[100%] w-[40%] overflow-y-scroll">
             <Toaster />
             <CardHeader>
                 <CardTitle>Existing Categories</CardTitle>
@@ -88,14 +81,15 @@ const LeftPanel = ({ categories, getChildCategories }: any) => {
                         if (!category.parentCategories.length) {
                             const childCategories = getChildCategories(category._id);
                             return (
-                                <div key={index} className="flex flex-col items-start gap-5 my-5 bg-gray-200 h-full p-3 rounded-md">
-                                    <div className="w-full flex flex-row items-center justify-between">
+                                <div key={index} className="flex flex-col items-start gap-5 my-5 bg-gray-100 h-full p-3 rounded-md">
+                                    <div className="w-full flex flex-row items-start justify-between">
                                         <CategoryOptions
                                             name={category.name}
                                             childCategories={childCategories}
+                                            RenameCategoryForm={RenameCategoryForm}
                                         />
                                         <div className="flex flex-row gap-2">
-                                            {/* AlertDialog for adding a new subcategory */}
+                                            {/* AlertDialog for adding a new subcategory or renaming a category */}
                                             <AlertDialog>
                                                 <AlertDialogTrigger asChild>
                                                     <Pencil1Icon
@@ -107,15 +101,41 @@ const LeftPanel = ({ categories, getChildCategories }: any) => {
                                                 </AlertDialogTrigger>
                                                 <AlertDialogContent className="bg-white text-black">
                                                     <AlertDialogHeader>
-                                                        <AlertDialogTitle>Add New Subcategory</AlertDialogTitle>
+                                                        <AlertDialogTitle>Edit Category</AlertDialogTitle>
                                                         <AlertDialogDescription>
-                                                            Please enter a name for the new subcategory of <strong>{category.name}</strong>.
+                                                            Choose an action to perform on <strong>{category.name}</strong>.
                                                         </AlertDialogDescription>
                                                     </AlertDialogHeader>
-                                                    <AddSubCategoryForm
-                                                        parentCategoryId={category._id}
-                                                        onSuccess={() => window.location.reload()}
-                                                    />
+                                                    <Tabs defaultValue="add" className="w-full">
+                                                        <TabsList className="w-full flex flex-row items-center justify-between">
+                                                            <TabsTrigger
+                                                                className="w-[50%] py-2 border-b-2 border-transparent aria-selected:border-blue-500 aria-selected:text-blue-500 rounded-none"
+                                                                value="add"
+                                                            >
+                                                                Add Sub-category
+                                                            </TabsTrigger>
+                                                            <TabsTrigger
+                                                                className="w-[50%] py-2 border-b-2 border-transparent aria-selected:border-blue-500 aria-selected:text-blue-500 rounded-none"
+                                                                value="rename"
+                                                            >
+                                                                Rename Category
+                                                            </TabsTrigger>
+                                                        </TabsList>
+
+                                                        <TabsContent className="w-full" value="add">
+                                                            <AddSubCategoryForm
+                                                                parentCategoryId={category._id}
+                                                                onSuccess={() => window.location.reload()}
+                                                            />
+                                                        </TabsContent>
+                                                        <TabsContent value="rename">
+                                                            <RenameCategoryForm
+                                                                categoryId={category._id}
+                                                                currentName={category.name}
+                                                                onSuccess={() => window.location.reload()}
+                                                            />
+                                                        </TabsContent>
+                                                    </Tabs>
                                                 </AlertDialogContent>
                                             </AlertDialog>
                                             {/* AlertDialog for deleting a category */}
@@ -123,7 +143,7 @@ const LeftPanel = ({ categories, getChildCategories }: any) => {
                                                 <AlertDialogTrigger asChild>
                                                     <TrashIcon color="red" height={20} width={20} className="hover:cursor-pointer" />
                                                 </AlertDialogTrigger>
-                                                <AlertDialogContent className="bg-black">
+                                                <AlertDialogContent className="bg-white text-black">
                                                     <AlertDialogHeader>
                                                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                                         <AlertDialogDescription>
@@ -158,27 +178,52 @@ const LeftPanel = ({ categories, getChildCategories }: any) => {
 
 export default LeftPanel;
 
-const CategoryOptions = ({ name, childCategories }: { name: string, childCategories: any[] }) => {
+const CategoryOptions = ({ RenameCategoryForm, name, childCategories }: { RenameCategoryForm: any, name: string, childCategories: any[] }) => {
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger>{name}</DropdownMenuTrigger>
-            <DropdownMenuContent>
-                <DropdownMenuLabel>{name}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
+        <div className="w-full">
+            <p className="font-semibold">
+                {name}
+            </p>
+            <div>
                 {
-                    childCategories.length > 0 ? (
-                        childCategories.map((childCategory, index) => (
-                            <DropdownMenuItem key={index}>{childCategory.name}</DropdownMenuItem>
-                        ))
-                    ) : (
-                        <DropdownMenuItem>No subcategories</DropdownMenuItem>
-                    )
+                    childCategories.map((childCategory, index) => {
+                        return (
+                            <div key={index} className="mt-10 bg-slate-200 w-full p-2 rounded-md flex flex-row items-start justify-between">
+                                <p>{childCategory.name}</p>
+                                <div className="flex flex-row items-center gap-2">
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Pencil1Icon
+                                                color="blue"
+                                                height={20}
+                                                width={20}
+                                                className="hover:cursor-pointer"
+                                            />
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className="bg-white text-black">
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Edit Category</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    Choose an action to perform on <strong>{childCategory.name}</strong>.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <RenameCategoryForm
+                                                categoryId={childCategory._id}
+                                                currentName={childCategory.name}
+                                                onSuccess={() => window.location.reload()}
+                                            />
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                    <TrashIcon color='red' height={20} width={20} />
+                                </div>
+                            </div>
+                        );
+                    })
                 }
-            </DropdownMenuContent>
-        </DropdownMenu>
+            </div>
+        </div>
     );
 };
-
 // AddSubCategoryForm Component
 const AddSubCategoryForm = ({ parentCategoryId, onSuccess }: { parentCategoryId: string, onSuccess: () => void }) => {
     const [subCatName, setSubCatName] = useState('');
@@ -227,6 +272,60 @@ const AddSubCategoryForm = ({ parentCategoryId, onSuccess }: { parentCategoryId:
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <Button onClick={onAddSubCategory} disabled={!subCatName || loading}>
                     {loading ? <CircularProgress color="primary" size="sm" /> : "Add"}
+                </Button>
+            </AlertDialogFooter>
+        </div>
+    );
+};
+
+// RenameCategoryForm Component
+const RenameCategoryForm = ({ categoryId, currentName, onSuccess }: { categoryId: string, currentName: string, onSuccess: () => void }) => {
+    const [newName, setNewName] = useState(currentName);
+    const [loading, setLoading] = useState(false);
+
+    const onRenameCategory = async () => {
+        setLoading(true);
+        try {
+            const uri = process.env.NEXT_PUBLIC_API_URL!;
+            await fetch(`${uri}/api/products/category`, {
+                method: "PUT", // Assuming a PUT request is used to update
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    categoryId: categoryId,
+                    name: newName,
+                }),
+            });
+            setLoading(false);
+            toast({
+                title: "Success",
+                description: "Category renamed successfully.",
+                variant: "default"
+            });
+            onSuccess(); // Trigger success callback
+        } catch (error) {
+            setLoading(false);
+            console.log(error);
+            toast({
+                title: "Error",
+                description: "Something went wrong",
+                variant: "destructive",
+            });
+        }
+    };
+
+    return (
+        <div className="flex flex-col gap-3 text-black">
+            <Input
+                placeholder="Enter New Category Name"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+            />
+            <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <Button onClick={onRenameCategory} disabled={!newName || loading}>
+                    {loading ? <CircularProgress color="primary" size="sm" /> : "Rename"}
                 </Button>
             </AlertDialogFooter>
         </div>

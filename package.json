@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.9.0",
     "@nextui-org/button": "^2.0.38",
     "@nextui-org/progress": "^2.0.34",
     "@nextui-org/react": "^2.4.8",
@@ -27,20 +28,29 @@
     "@reduxjs/toolkit": "^2.2.7",
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
+    "cloudinary": "^2.5.0",
     "clsx": "^2.1.1",
+    "crypto-js": "^4.2.0",
+    "file-system": "^2.2.2",
     "framer-motion": "^11.5.4",
+    "fs": "^0.0.1-security",
     "js-cookie": "^3.0.5",
+    "js-sha256": "^0.11.0",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.441.0",
     "next": "14.2.11",
+    "next-cloudinary": "^6.13.0",
     "react": "^18",
     "react-dom": "^18",
+    "react-hook-form": "^7.53.0",
     "react-redux": "^9.1.2",
     "tailwind-merge": "^2.5.2",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.2.2",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/react": "^18",

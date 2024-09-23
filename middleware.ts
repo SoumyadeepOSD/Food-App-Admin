@@ -5,7 +5,8 @@ export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isAuthPath = path === "/auth";
   const isDashboardPath = path === "/dashboard";
-  
+  const isManageCategoriesPath = path === "/manage-categories"; // Protect this path
+
   // Get the token from cookies
   const token = request.cookies.get("token")?.value;
 
@@ -14,8 +15,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  // If the user is trying to access /dashboard without a token, redirect to /auth
-  if (isDashboardPath && (!token || token === "")) {
+  // If the user is trying to access /dashboard or /manage-categories without a token, redirect to /auth
+  if ((isDashboardPath || isManageCategoriesPath) && (!token || token === "")) {
     return NextResponse.redirect(new URL('/auth', request.url));
   }
 
@@ -26,8 +27,9 @@ export function middleware(request: NextRequest) {
 // Define the paths the middleware should apply to
 export const config = {
   matcher: [
-    '/auth',          // Public auth path
-    '/dashboard',     // Protected dashboard path
-    '/',              // Index or other protected paths if needed
+    '/auth',              // Public auth path
+    '/dashboard',         // Protected dashboard path
+    '/manage-categories', // Protected manage categories path
+    '/',                  // Index or other protected paths if needed
   ],
 };
